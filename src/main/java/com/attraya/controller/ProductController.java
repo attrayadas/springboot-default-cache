@@ -28,4 +28,14 @@ public class ProductController {
     public Product getProductById(@PathVariable int id) {
         return productService.getProductById(id);
     }
+
+    @PutMapping("/{id}")
+    public Product updateProduct(@PathVariable int id, @RequestBody Product productRequest) {
+        return productService.updateProduct(id, productRequest);
+    }
+
+    @DeleteMapping("/{id}")
+    public long deleteProduct(@PathVariable int id) {
+        return productService.deleteProduct(id);
+    }
 }

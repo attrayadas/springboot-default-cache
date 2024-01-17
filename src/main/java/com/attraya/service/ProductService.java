@@ -5,6 +5,9 @@ import com.attraya.repository.ProductRepository;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +18,7 @@ import java.util.stream.IntStream;
 
 @Service
 @Slf4j
+@CacheConfig(cacheNames = "products")
 public class ProductService {
 
     @Autowired
@@ -28,18 +32,41 @@ public class ProductService {
 //        productRepository.saveAll(products);
 //    }
 
-    @Cacheable(cacheNames = "products")
+    @Cacheable
     public List<Product> getProducts() {
-        log.info("ProductService::getProducts() connecting to Database");
+        log.info("ProductService::getProducts() connecting to Database...");
         return productRepository.findAll();
     }
 
-
-    public Product saveProduct(Product product) {
+    @CachePut(key = "#product.id")
+    publi@CachePutc Product saveProduct(Product product) {
+        log.info("ProductService::saveProduct() connecting to Database...");
         return productRepository.save(product);
     }
 
+    @Cacheable(key = "#id")
     public Product getProductById(int id) {
+        log.info("ProductService::getProductsById() connecting to Database...");
         return productRepository.findById(id).get();
+    }
+
+    @CachePut(key = "#id")
+    public Product updateProduct(int id, Product productRequest) {
+        // get the product from DB by id
+        // update with new value getting from request
+        Product existingProduct = productRepository.findById(id).get(); // DB
+        existingProduct.setName(productRequest.getName());
+        existingProduct.setDescription(productRequest.getDescription());
+        existingProduct.setPrice(productRequest.getPrice());
+        existingProduct.setProductType(existingProduct.getProductType());
+        log.info("ProductService::updateProduct() connecting to Database...");
+        return productRepository.save(existingProduct);
+    }
+
+    @CacheEvict(key = "#id")
+    public long deleteProduct(int id) {
+        log.info("ProductService::deleteProduct() connecting to Database...");
+        productRepository.deleteById(id);
+        return productRepository.count();
     }
 }

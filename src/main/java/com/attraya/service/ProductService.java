@@ -39,7 +39,7 @@ public class ProductService {
     }
 
     @CachePut(key = "#product.id")
-    publi@CachePutc Product saveProduct(Product product) {
+    public Product saveProduct(Product product) {
         log.info("ProductService::saveProduct() connecting to Database...");
         return productRepository.save(product);
     }
